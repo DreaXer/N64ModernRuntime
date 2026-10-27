@@ -110,7 +110,7 @@ static struct {
             regs.VI_X_SCALE_REG = common_regs->xScale; // TODO implement osViSetXScale
             regs.VI_Y_SCALE_REG = yScale; // TODO implement osViSetYScale
             regs.VI_STATUS_REG = next_state->control;
-            
+
             // Swap VI states.
             cur_state ^= 1;
             *get_next_state() = *get_cur_state();
@@ -195,7 +195,7 @@ void vi_thread_func() {
 
     while (!exited) {
         // Determine the next VI time (more accurate than adding 16ms each VI interrupt)
-        auto next = ultramodern::get_start() + (total_vis * 1000000us) / (60 * ultramodern::get_speed_multiplier());
+        auto next = ultramodern::get_start() + (total_vis * 1000000us) / (50 * ultramodern::get_speed_multiplier());
         //if (next > std::chrono::high_resolution_clock::now()) {
         //    printf("Sleeping for %" PRIu64 " us to get from %" PRIu64 " us to %" PRIu64 " us \n",
         //        (next - std::chrono::high_resolution_clock::now()) / 1us,
@@ -212,7 +212,7 @@ void vi_thread_func() {
         ultramodern::sleep_until(next);
         auto time_now = ultramodern::time_since_start();
         // Calculate how many VIs have passed
-        uint64_t new_total_vis = (time_now * (60 * ultramodern::get_speed_multiplier()) / 1000ms) + 1;
+        uint64_t new_total_vis = (time_now * (50 * ultramodern::get_speed_multiplier()) / 1000ms) + 1;
         if (new_total_vis > total_vis + 1) {
             //printf("Skipped % " PRId64 " frames in VI interupt thread!\n", new_total_vis - total_vis - 1);
         }
@@ -470,6 +470,9 @@ extern "C" void osViSetMode(RDRAM_ARG PTR(OSViMode) mode_) {
     ViState* next_state = events_context.vi.get_next_state();
     next_state->mode = mode;
     next_state->control = next_state->mode->comRegs.ctrl;
+    // 40WinksRecomp: libultra's osViSetMode overwrites the state with VI_STATE_MODE_UPDATED, which clears the black and
+    // repeat-line flags. 40 Winks relies on this: it blacks the screen during transitions and calls osViSetMode every frame.
+    next_state->state = 0;
 }
 
 #define OS_VI_GAMMA_ON          0x0001

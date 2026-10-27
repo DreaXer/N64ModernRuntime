@@ -56,7 +56,7 @@ uint32_t ultramodern::get_remaining_audio_bytes() {
     // there are enough samples even if the audio thread experiences a small amount of lag. This prevents
     // audio popping on games that use the buffered audio byte count to determine how many samples
     // to generate.
-    uint32_t samples_per_vi = (sample_rate / 60);
+    uint32_t samples_per_vi = (sample_rate / 50);
     if (buffered_byte_count > static_cast<uint32_t>(buffer_offset_frames * sizeof(int16_t) * samples_per_vi)) {
         buffered_byte_count -= static_cast<uint32_t>(buffer_offset_frames * sizeof(int16_t) * samples_per_vi);
     }
