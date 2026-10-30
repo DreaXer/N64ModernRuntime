@@ -76,6 +76,10 @@ namespace ultramodern {
             HighPrecisionFramebuffer hpfb_option;
             int rr_manual_value;
             int ds_option;
+            // 40winks: RT64 values as is (threePointFiltering, Filtering, Upscale2D).
+            int tf_option;
+            int of_option;
+            int u2d_option;
 
             virtual ~GraphicsConfig() = default;
 
