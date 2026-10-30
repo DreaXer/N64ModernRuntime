@@ -24,6 +24,13 @@ static bool read_json_with_backups(const std::filesystem::path& path, nlohmann::
         return true;
     }
 
+    // 40winks: a deleted config file means "back to defaults", so the backup is only used when the base file exists
+    // but cannot be read (e.g. corrupted by a crash while saving).
+    std::error_code ec;
+    if (!std::filesystem::exists(path, ec)) {
+        return false;
+    }
+
     // Try reading and parsing the backup file.
     if (read_json(recomp::open_input_backup_file(path), json_out)) {
         return true;
